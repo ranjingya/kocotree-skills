@@ -16,6 +16,7 @@ kocotree skills 合集
 
 | Skill | 说明 | 备注 | 需要校验 | 来源 |
 |-------|------|------|:------:|------|
+| [find-skills](skills/find-skills/) | 发现并推荐可安装的 Agent Skill | 依赖 `npx skills` / skills.sh | ❌ | [vercel-labs skills](https://github.com/vercel-labs/skills/tree/main/skills/find-skills) |
 | [jushuitan-inventory-query](skills/jushuitan-inventory-query/) | 聚水潭库存简单查询 |    | ✅ |  鸭腿开发  |
 | [text2image](skills/text2image/) | 文/图生图 | 模型：nano-banana-2、nano-banana-pro | ✅ | 鸭腿开发 |
 | [storage-analyzer](skills/storage-analyzer/) | 磁盘存储分析与清理建议（交互式 HTML 报告） |  不要完全信任ai给的建议  | ❌ | [khazix-skills](https://github.com/KKKKhazix/khazix-skills/tree/main/storage-analyzer) |
