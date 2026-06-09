@@ -13,6 +13,10 @@ if not (SCRIPTS_DIR / ".venv").exists():
     print(f"错误: 未找到虚拟环境，请先在 scripts/ 目录下执行 uv sync\n  路径: {SCRIPTS_DIR}", file=sys.stderr)
     sys.exit(1)
 
+sys.path.insert(0, str(SCRIPTS_DIR))
+
+from auth.auth_client import with_auth, get_headers
+
 import requests
 
 
@@ -71,6 +75,15 @@ def render_inventory_markdown(rows: list[dict], failures: list[dict]) -> str:
 def parse_list(value: str) -> list[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
 
+@with_auth
+def _request(payload: dict, timeout: int) -> requests.Response:
+    return requests.post(
+        headers=get_headers(),
+        url=f"{JUSHUITAN_SERVICE_URL}/api/inventory/query",
+        json=payload,
+        timeout=timeout,
+    )
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="查询聚水潭库存")
@@ -110,11 +123,7 @@ def main() -> int:
     }
 
     try:
-        resp = requests.post(
-            f"{JUSHUITAN_SERVICE_URL}/api/inventory/query",
-            json=payload,
-            timeout=args.timeout + 10,
-        )
+        resp = _request(payload, args.timeout + 10)
         body = resp.json()
     except requests.RequestException as e:
         print(f"请求服务失败: {e}", file=sys.stderr)
