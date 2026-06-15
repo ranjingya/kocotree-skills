@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from common import list_images
+from .utils import list_images
 
 
 源目录规则 = {
@@ -28,7 +28,7 @@ def scan_source_pack(source_root: Path) -> dict:
         path = source_root / rel
         images = list_images(path, recursive=(name == "素材图"))
         if path.exists():
-            found[name] = {"目录": str(path), "图片数量": len(images), "图片": [str(p) for p in images]}
+            found[name] = {"目录": str(path), "图片数量": len(images)}
         else:
             missing.append(str(rel))
     return {"识别目录": found, "缺失目录": missing}

@@ -5,7 +5,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from build_tmall_master import build as build_tmall
+from auth.auth_client import ensure_token
 from common import (
     全部平台,
     平台目录名,
@@ -16,15 +16,15 @@ from common import (
     resolve_path,
     ensure_dir,
 )
-from derive_cbme import derive as derive_cbme
-from derive_fengxiang_aikucun import derive as derive_fengxiang_aikucun
-from derive_jd import derive as derive_jd
-from derive_offsite import derive as derive_offsite
-from derive_vip import derive as derive_vip
-from quality_audit import run_quality_audit
-from scan_source_pack import scan_source_pack
-from write_report import write_report
-from auth.auth_client import ensure_token
+from common.quality_audit import run_quality_audit
+from common.scan_source_pack import scan_source_pack
+from common.write_report import write_report
+from platforms.tmall import build as build_tmall
+from platforms.cbme import derive as derive_cbme
+from platforms.fengxiang_aikucun import derive as derive_fengxiang_aikucun
+from platforms.jd import derive as derive_jd
+from platforms.offsite import derive as derive_offsite
+from platforms.vip import derive as derive_vip
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="全自动处理多平台商品图片包并输出中文报告。")
@@ -71,42 +71,40 @@ def default_output_path() -> Path:
 
 
 def resolve_source_and_output(source: Path, output_root: Path) -> tuple[Path, Path, str]:
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     if source.name == "数据包":
         product_name = source.parent.name
-        return source, output_root / product_name, product_name
+        return source, output_root / f"{product_name}_{timestamp}", product_name
 
     data_pack = source / "数据包"
     if data_pack.is_dir():
-        return data_pack, output_root / source.name, source.name
+        return data_pack, output_root / f"{source.name}_{timestamp}", source.name
 
-    return source, output_root, ""
+    return source, output_root / timestamp, ""
 
 
-def main(argv: list[str] | None = None) -> int:
-    try:
-        ensure_token()
-    except SystemExit:
-        return 1
-    except RuntimeError as e:
-        print(f"认证失败：{e}")
-        return 1
+def detect_batch(source: Path) -> list[Path]:
+    if source.name == "数据包" or (source / "数据包").is_dir():
+        return []
+    return sorted(
+        child for child in source.iterdir()
+        if child.is_dir() and (child / "数据包").is_dir()
+    )
 
-    args = parse_args(argv or sys.argv[1:])
-    source_arg = resolve_path(args.source)
-    template = resolve_path(args.template) if args.template else default_template_path()
-    output_arg = resolve_path(args.output) if args.output else default_output_path()
-    source = source_arg
-    output = output_arg
-    product_name = ""
-    if source_arg is not None and output_arg is not None:
-        source, output, product_name = resolve_source_and_output(source_arg, output_arg)
-    report_path = resolve_path(args.report) if args.report else default_report_path(output)
 
-    assert source is not None
-    assert output is not None
-    assert report_path is not None
+def run_single(
+    source_arg: Path,
+    template: Path,
+    output_arg: Path,
+    platform: str,
+    report_path: Path | None = None,
+) -> int:
+    source, output, product_name = resolve_source_and_output(source_arg, output_arg)
+    if report_path is None:
+        report_path = default_report_path(output)
+
     ensure_dir(output)
-    report = new_report(source, template, output, args.platform)
+    report = new_report(source, template, output, platform)
     if product_name:
         report["处理配置"]["产品名"] = product_name
         report["处理配置"]["源参数目录"] = str(source_arg)
@@ -118,7 +116,7 @@ def main(argv: list[str] | None = None) -> int:
         prune_report_files(report_path.parent)
         return 2
 
-    selected = 全部平台 if args.platform == "all" else [args.platform]
+    selected = 全部平台 if platform == "all" else [platform]
     if "tmall" not in selected:
         tmall_needed = any(p in selected for p in ["cbme", "jd", "vip", "fengxiang-aikucun"])
     else:
@@ -160,6 +158,43 @@ def main(argv: list[str] | None = None) -> int:
     print(f"处理完成：{output}")
     print(f"报告路径：{report_path}")
     return 0 if not report["失败项"] else 1
+
+
+def main(argv: list[str] | None = None) -> int:
+    try:
+        ensure_token()
+    except SystemExit:
+        return 1
+    except RuntimeError as e:
+        print(f"认证失败：{e}")
+        return 1
+
+    args = parse_args(argv or sys.argv[1:])
+    source_arg = resolve_path(args.source)
+    template = resolve_path(args.template) if args.template else default_template_path()
+    output_arg = resolve_path(args.output) if args.output else default_output_path()
+
+    assert source_arg is not None
+    assert output_arg is not None
+
+    products = detect_batch(source_arg)
+    if products:
+        print(f"检测到批处理模式，共 {len(products)} 个产品：")
+        for p in products:
+            print(f"  - {p.name}")
+        worst = 0
+        for product_dir in products:
+            print(f"\n{'='*60}")
+            print(f"开始处理：{product_dir.name}")
+            print(f"{'='*60}")
+            report_path = resolve_path(args.report) if args.report else None
+            code = run_single(product_dir, template, output_arg, args.platform, report_path)
+            worst = max(worst, code)
+        print(f"\n全部处理完成，共 {len(products)} 个产品。")
+        return worst
+
+    report_path = resolve_path(args.report) if args.report else None
+    return run_single(source_arg, template, output_arg, args.platform, report_path)
 
 
 if __name__ == "__main__":

@@ -3,9 +3,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from common import ensure_dir, copy_file_original, add_review_suggestion
-from detail_page_slice import collect_detail_sources, generate_sequential_detail_pages
-from image_resize_compress import process_jpg_original_or_compress, process_png_original_or_compress
-from scan_source_pack import 源目录规则, get_image_group, get_sku800, get_sku1440
+from common.detail_page_slice import collect_detail_sources, generate_sequential_detail_pages
+from common.image_resize_compress import process_jpg_original_or_compress, process_png_original_or_compress
+from common.scan_source_pack import 源目录规则, get_image_group, get_sku800, get_sku1440
 
 
 平台 = "天猫通用版"

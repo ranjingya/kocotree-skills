@@ -4,14 +4,14 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from common import ensure_dir, copy_file_original, add_review_suggestion
-from image_resize_compress import process_jpg_original_or_compress, process_png_original_or_compress
-from logo_overlay import find_logo, overlay_logo
-from scan_source_pack import 源目录规则, get_image_group, get_sku800_recursive
-from text_removal import get_text_removal_temp_dir, process_offsite_sku_text_removal, prune_temp_images
+from common.image_resize_compress import process_jpg_original_or_compress, process_png_original_or_compress
+from common.logo_overlay import find_logo, overlay_logo
+from common.scan_source_pack import 源目录规则, get_image_group, get_sku800_recursive
+from common.text_removal import ensure_text2image_ready, get_text_removal_temp_dir, process_offsite_sku_text_removal, prune_temp_images
 
 
 平台 = "站外通用版"
-SKU_TEXT_REMOVAL_CONCURRENCY = 5
+SKU_TEXT_REMOVAL_CONCURRENCY = 10
 
 
 def derive(source_root: Path, template_root: Path | None, output_root: Path, report: dict) -> Path:
@@ -19,6 +19,12 @@ def derive(source_root: Path, template_root: Path | None, output_root: Path, rep
     sku_outputs = []
     sku_dir = ensure_dir(platform_dir / "800sku去除文字")
     sku_sources = get_sku800_recursive(source_root)
+    if sku_sources:
+        ready, ready_msg = ensure_text2image_ready()
+        if not ready:
+            from common import add_failure
+            add_failure(report, "text2image 不可用，跳过站外SKU去字", 原因=ready_msg)
+            sku_sources = []
     if sku_sources:
         used_output_paths: set[Path] = set()
         sku_base = source_root / 源目录规则["SKU"]

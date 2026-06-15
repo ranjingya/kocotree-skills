@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from common import list_images, image_info, add_warning
+from .utils import list_images, image_info, add_warning
 
 
 def run_quality_audit(output_root: Path, platforms: list[str], report: dict) -> None:

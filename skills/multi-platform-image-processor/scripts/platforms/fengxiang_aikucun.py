@@ -3,9 +3,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from common import ensure_dir, add_review_suggestion
-from detail_page_slice import merge_long_detail_slices
-from image_resize_compress import process_jpg_original_or_compress
-from scan_source_pack import get_image_group
+from common.detail_page_slice import merge_long_detail_slices
+from common.image_resize_compress import process_jpg_original_or_compress
+from common.scan_source_pack import get_image_group
 
 
 平台 = "蜂享家＋爱库存"

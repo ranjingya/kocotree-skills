@@ -4,8 +4,8 @@ from pathlib import Path
 
 from PIL import Image
 
-from common import add_failure, add_risk
-from image_resize_compress import open_image, save_jpg_under
+from .utils import add_failure, add_risk
+from .image_resize_compress import open_image, save_jpg_under
 
 
 def find_logo(template_root: Path | None) -> Path | None:

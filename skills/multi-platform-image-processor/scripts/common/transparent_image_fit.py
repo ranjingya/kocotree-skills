@@ -4,8 +4,8 @@ from pathlib import Path
 
 from PIL import Image
 
-from common import add_failure, add_risk
-from image_resize_compress import open_image, save_png_under
+from .utils import add_failure, add_risk
+from .image_resize_compress import open_image, save_png_under
 
 
 def trim_transparent_edges(image: Image.Image, alpha_threshold: int = 8) -> Image.Image:

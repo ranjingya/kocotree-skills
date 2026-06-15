@@ -40,36 +40,40 @@ uv sync
 
 ```powershell
 cd scripts
-.venv\Scripts\python.exe run_pipeline.py `
+.venv\Scripts\python.exe main.py `
   --source "源数据包目录"
 ```
 
-默认输出全平台。`--platform` 支持：`all`、`tmall`、`cbme`、`jd`、`vip`、`fengxiang-aikucun`、`offsite`。
+Windows 中文环境下如遇编码错误，先设置 `$env:PYTHONUTF8 = "1"`。
 
-默认模板目录为 skill 内置 `template`，可用 `--template` 指定其他模板。默认输出目录为 `E:\桌面\multi-platform-image-processor\output`，可用 `--output` 指定交付目录。如果源目录是带产品名的文件夹，例如 `KQ26019 小灵眸夹片太阳镜\数据包`，或直接传入产品文件夹 `KQ26019 小灵眸夹片太阳镜` 且其中包含 `数据包`，最终输出会保留产品名文件夹，平台目录生成在 `<输出目录>\KQ26019 小灵眸夹片太阳镜\` 内。
+## 参数说明
 
-默认报告保存到 `scripts/output/report/<输出目录名>-<时间戳>-report.json`，供 Agent 复核使用，最多保留最近 100 份。可用 `--report` 指定报告路径。
-
-站外 `800sku去除文字` 使用 `text2image` Agent skill 生图脚本处理，递归识别 `SKU` 多层子目录图片，默认 5 并发；默认使用 `gemini-3-pro-image-preview` 模型生成图片，最终统一输出为 `800x800` JPG。脚本优先查找本地 Agent skill 目录 `~/.codex/skills/text2image`（如果设置了 `CODEX_HOME`，则使用 `$CODEX_HOME/skills/text2image`），并会在 `~/.codex/skills` 内扫描名为 `text2image` 的 skill。若本地未找到，会从 `https://github.com/ranjingya/kocotree-skills/tree/master/skills/text2image` 安装到当前 skill 的同级目录 `text2image`，例如当前 skill 位于 `~/.codex/skills/multi-platform-image-processor` 时，安装目标为 `~/.codex/skills/text2image`；安装后继续使用该目录。调用时严格使用 `text2image/scripts/.venv/Scripts/python.exe` 执行 `main.py`，如果虚拟环境不存在，会按原图压缩输出并写入报告风险。模型临时图保存到 `scripts/output/image-without-text-tmp`，最多保留最近 100 张；模型失败时按原图压缩输出并写入报告风险。
-
-Windows 中文环境下如遇 Python 读取 UTF-8 中文文件报编码错误，先在 PowerShell 设置：
-
-```powershell
-$env:PYTHONUTF8 = "1"
-```
+- `--platform` 支持 `all`（默认）、`tmall`、`cbme`、`jd`、`vip`、`fengxiang-aikucun`、`offsite`。
+- `--template` 指定模板目录，默认使用 skill 内置 `template`。
+- `--output` 指定输出目录，默认 `E:\桌面\multi-platform-image-processor\output`。
+- `--report` 指定报告路径，默认保存到 `scripts/output/report/`，最多保留 100 份。
+- `--source` 自动检测数据源结构：
+  - **单产品**：`--source` 指向 `数据包` 目录，或其父目录包含 `数据包/` 子目录，输出以 `数据包` 父文件夹名为产品名。
+  - **批处理**：`--source` 指向一个包含多个产品子目录的总包（每个子目录内含 `数据包/`），自动逐个处理，输出目录以各产品的 `数据包` 父文件夹名命名。
+- 站外 SKU 去文字依赖 `text2image` skill（默认模型 `gemini-3-pro-image-preview`，10 并发），脚本会自动查找、下载并安装依赖。模型失败时按原图压缩输出并写入报告风险。
+- **脚本完成后，Agent 必须读取报告 JSON，检查 `失败项`、`风险`、`警告`、`Agent复核建议` 字段，并向用户逐条给出警告说明。**
 
 ## 脚本职责
 
-- `scripts/run_pipeline.py`：总入口，调度扫描、母版生成、平台派生、质检、报告。
-- `scripts/scan_source_pack.py`：扫描源包并生成素材清单。
-- `scripts/build_tmall_master.py`：生成天猫通用版母版。
-- `scripts/derive_cbme.py`、`scripts/derive_jd.py`、`scripts/derive_vip.py`、`scripts/derive_fengxiang_aikucun.py`、`scripts/derive_offsite.py`：各平台独立派生。
-- `scripts/image_resize_compress.py`：图片缩放、格式转换、JPG/PNG 压缩。
-- `scripts/transparent_image_fit.py`：透明图裁边、顶满、京东放大 4px、唯品会放大 10px、保留 alpha。
-- `scripts/detail_page_slice.py`：详情页缩放、拼接、切片、连续命名。
-- `scripts/logo_overlay.py`：站外白底图叠加 `logo3.png`。
-- `scripts/text_removal.py`：调用 text2image 模型生成站外 SKU 去文字图，并管理临时图保留规则。
-- `scripts/quality_audit.py`：自动质检。
+- `scripts/main.py`：总入口，调度扫描、母版生成、平台派生、质检、报告。
+- `scripts/common/`：通用工具模块。
+  - `utils.py`：路径、图片信息、报告管理等基础工具。
+  - `image_resize_compress.py`：图片缩放、格式转换、JPG/PNG 压缩。
+  - `scan_source_pack.py`：扫描源包并生成素材清单。
+  - `detail_page_slice.py`：详情页缩放、拼接、切片、连续命名。
+  - `transparent_image_fit.py`：透明图裁边、顶满、京东放大 4px、唯品会放大 10px、保留 alpha。
+  - `logo_overlay.py`：站外白底图叠加 `logo3.png`。
+  - `text_removal.py`：调用 text2image 模型生成站外 SKU 去文字图，并管理临时图保留规则。
+  - `quality_audit.py`：自动质检。
+  - `write_report.py`：输出 JSON 报告。
+- `scripts/platforms/`：各平台独立处理模块。
+  - `tmall.py`：生成天猫通用版母版。
+  - `cbme.py`、`jd.py`、`vip.py`、`fengxiang_aikucun.py`、`offsite.py`：各平台派生。
 - `scripts/write_report.py`：中文报告输出。
 - `template/`：默认平台空目录模板和站外 `logo3.png`；空目录用 `.gitkeep` 占位以便 Git 提交。
 

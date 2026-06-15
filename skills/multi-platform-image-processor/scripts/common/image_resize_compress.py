@@ -9,7 +9,7 @@ from pathlib import Path
 
 from PIL import Image, ImageOps
 
-from common import ensure_dir, unique_path, add_image_record, add_failure, add_warning
+from .utils import ensure_dir, unique_path, add_image_record, add_failure, add_warning
 
 
 PNGQUANT_质量档 = ["80-95", "70-90", "60-85", "45-75", "30-65", "15-50", "0-40"]
@@ -137,8 +137,8 @@ def find_pngquant() -> str | None:
             executable_dir / "pngquant",
             executable_dir.parent / "bin" / "pngquant.exe",
             executable_dir.parent / "bin" / "pngquant",
-            Path(__file__).resolve().parents[1] / "tools" / "pngquant.exe",
-            Path(__file__).resolve().parents[1] / "tools" / "pngquant",
+            Path(__file__).resolve().parents[2] / "tools" / "pngquant.exe",
+            Path(__file__).resolve().parents[2] / "tools" / "pngquant",
         ]
     )
     for candidate in candidates:

@@ -3,10 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 
 from common import ensure_dir, add_risk
-from detail_page_slice import scale_detail_pages_from_master
-from image_resize_compress import process_jpg_canvas
-from scan_source_pack import get_image_group
-from transparent_image_fit import process_vip_transparent_image
+from common.detail_page_slice import scale_detail_pages_from_master
+from common.image_resize_compress import process_jpg_canvas
+from common.scan_source_pack import get_image_group
+from common.transparent_image_fit import process_vip_transparent_image
 
 
 平台 = "唯品会"

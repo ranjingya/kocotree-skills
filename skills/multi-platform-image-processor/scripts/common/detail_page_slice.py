@@ -5,8 +5,8 @@ from pathlib import Path
 
 from PIL import Image
 
-from common import list_images, ensure_dir, add_failure, add_risk, add_warning
-from image_resize_compress import open_image, save_jpg_under
+from .utils import list_images, ensure_dir, add_failure, add_risk, add_warning
+from .image_resize_compress import open_image, save_jpg_under
 
 
 def collect_detail_sources(source_root: Path) -> list[Path]:

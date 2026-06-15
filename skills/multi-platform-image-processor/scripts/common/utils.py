@@ -205,9 +205,20 @@ def write_json(path: Path, data: dict[str, Any]) -> None:
 
 def finalize_report_summary(report: dict[str, Any]) -> None:
     report["处理配置"]["结束时间"] = datetime.now().isoformat(timespec="seconds")
+
+    raw_records = report.get("图片记录", [])
+    total_images = len(raw_records)
+    grouped: dict[str, dict[str, int]] = {}
+    for rec in raw_records:
+        plat = rec.get("平台", "未知")
+        usage = rec.get("用途", "未知")
+        grouped.setdefault(plat, {})
+        grouped[plat][usage] = grouped[plat].get(usage, 0) + 1
+    report["图片记录"] = grouped
+
     report["汇总"] = {
         "平台数": len(report.get("平台结果", {})),
-        "图片数": len(report.get("图片记录", [])),
+        "图片数": total_images,
         "Agent复核建议数": len(report.get("Agent复核建议", [])),
         "警告数": len(report.get("警告", [])),
         "风险数": len(report.get("风险", [])),

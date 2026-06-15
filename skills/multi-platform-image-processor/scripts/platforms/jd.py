@@ -3,10 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 
 from common import list_images, ensure_dir
-from detail_page_slice import scale_detail_pages_from_master
-from image_resize_compress import process_jpg_original_or_compress
-from scan_source_pack import get_image_group, get_sku800
-from transparent_image_fit import process_square_transparent_image
+from common.detail_page_slice import scale_detail_pages_from_master
+from common.image_resize_compress import process_jpg_original_or_compress
+from common.scan_source_pack import get_image_group, get_sku800
+from common.transparent_image_fit import process_square_transparent_image
 
 
 平台 = "京东"
