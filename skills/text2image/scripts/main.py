@@ -10,7 +10,7 @@ import requests
 
 from auth.auth_client import with_auth, get_headers
 
-BASE_URL = "http://121.40.167.37:5000"
+BASE_URL = "https://text-image-field-shortcut.skills.kktree.cn"
 ENDPOINT = "/api/generate-image"
 DEFAULT_OUTPUT_DIR = str(Path.home() / "Desktop" / "text2image")
 

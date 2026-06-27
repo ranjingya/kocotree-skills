@@ -20,7 +20,7 @@ from auth.auth_client import with_auth, get_headers
 import requests
 
 
-JUSHUITAN_SERVICE_URL = os.environ.get("JUSHUITAN_SERVICE_URL", "http://121.40.167.37:5011")
+JUSHUITAN_SERVICE_URL = os.environ.get("JUSHUITAN_SERVICE_URL", "https://jushuitan.skills.kktree.cn")
 
 
 def render_virtual_stock_markdown(rows: list[dict], failures: list[dict]) -> str:
