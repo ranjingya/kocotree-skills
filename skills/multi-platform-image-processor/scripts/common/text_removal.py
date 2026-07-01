@@ -19,7 +19,10 @@ DEFAULT_TEXT2IMAGE_TIMEOUT = 300
 TEXT2IMAGE_GITHUB_ZIP_URL = "https://github.com/ranjingya/kocotree-skills/archive/refs/heads/master.zip"
 TEXT2IMAGE_GITHUB_SKILL_PATH = Path("skills") / "text2image"
 TEMP_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
-TEXT_REMOVAL_PROMPT = "去除图片中的文字，其他全部保持不变"
+TEXT_REMOVAL_PROMPT = (
+    "只去除右侧白色产品卡片上彩色装饰条（顶部圆角色块、底部弧形色块）内的，以及产品名称的文字，"
+    "其余所有内容严格保持不变，包括但不限于：织标和图案、衣服印花、人物和背景、装饰条色块等"
+)
 
 
 # ── Path helpers ──────────────────────────────────────────────
