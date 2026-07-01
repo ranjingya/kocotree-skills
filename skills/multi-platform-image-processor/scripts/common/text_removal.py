@@ -20,7 +20,7 @@ TEXT2IMAGE_GITHUB_ZIP_URL = "https://github.com/ranjingya/kocotree-skills/archiv
 TEXT2IMAGE_GITHUB_SKILL_PATH = Path("skills") / "text2image"
 TEMP_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 TEXT_REMOVAL_PROMPT = (
-    "请对图片做最小幅度编辑：只去除右侧白色产品卡片上的文字，包括彩色装饰条内的文字、产品名称文字、编号文字或其他说明文字。彩色装饰条可能是红色、绿色或其他颜色，包括顶部圆角色块、底部弧形色块、小编号色块等。\n严格保留所有非文字内容不变：保留彩色装饰条本身的颜色、形状、大小、位置、圆角、弧形、阴影和边缘；保留白色产品卡片、产品图片、人物、背景、织标、产品图案、衣服印花、材质纹理、光影和整体构图。\n只把文字区域自然填充为对应背景颜色或装饰条颜色。不要删除、缩小、重绘或改变装饰条。不要新增任何文字、符号、logo、图形、边框或其他物体。"
+    "Edit the image with minimal changes. Remove only the text on the right-side white product card, including text inside colored decorative labels, product name text, number label text, and any other descriptive text. The colored labels may be red, green, or other colors, including top rounded color blocks, bottom curved color blocks, and small numbered color badges.\nStrictly keep all non-text elements unchanged: preserve the colored decorative labels themselves, including their color, shape, size, position, rounded corners, curved edges, shadows, and borders. Preserve the white product card, product images, baby/person, background, fabric labels, product patterns, clothing prints, material textures, lighting, and overall composition.\nOnly fill the removed text areas naturally with the matching surrounding background color or label color. Do not remove, shrink, redraw, or alter any decorative label. Do not add any new text, symbols, logos, graphics, borders, or objects."
 )
 
 
