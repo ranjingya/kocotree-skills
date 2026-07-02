@@ -15,6 +15,7 @@ from common.transparent_image_fit import process_square_transparent_image
 def derive(source_root: Path, tmall_dir: Path, output_root: Path, report: dict) -> Path:
     platform_dir = ensure_dir(output_root / 平台)
     _batch_jpg(get_image_group(source_root, "主图800"), platform_dir / "800主图", "800主图", report)
+    _batch_jpg(get_image_group(source_root, "主图750"), platform_dir / "750 1000主图", "750 1000主图", report)
     _batch_jpg(get_sku800(source_root), platform_dir / "800sku", "800sku", report)
     transparent_dir = ensure_dir(platform_dir / "透明图")
     for source in get_image_group(source_root, "透明图"):
